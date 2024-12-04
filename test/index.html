@@ -354,166 +354,53 @@ body.hide-header .header {
 }
   </style>
   
-
-
-
-
-
-<header class="header">
-  <h1 class="title">Hello, I'm Dymond Bot</h1>
-  <p class="subtitle">How can I help you today?</p>
-  <ul class="suggestion-list">
-    <li class="suggestion">
-      <h4 class="text">Help me paint the inside of my house.</h4>
-      <span class="icon material-symbols-rounded">brush</span>
-    </li>
-    <li class="suggestion">
-      <h4 class="text">I need help replacing some light fixtures.</h4>
-      <span class="icon material-symbols-rounded">lightbulb</span>
-    </li>
-    <li class="suggestion">
-      <h4 class="text">I need to know about the best flooring options for a bathroom floor.</h4>
-      <span class="icon material-symbols-rounded">explore</span>
-    </li>
-    <li class="suggestion">
-      <h4 class="text">How can I get my toilet to stop running?</h4>
-      <span class="icon material-symbols-rounded">bathroom</span>
-    </li>
-  </ul>
-</header>
-<div class="chat-list"></div>
-<div class="typing-area">
-  <form action="#" class="typing-form">
-    <div class="input-wrapper">
-      <input type="text" placeholder="Enter a prompt here" class="typing-input" required />
-      <button id="send-message-button" class="icon material-symbols-rounded">send</button>
-    </div>
-    <div class="action-buttons">
-      <span id="theme-toggle-button" class="icon material-symbols-rounded">light_mode</span>
-      <span id="delete-chat-button" class="icon material-symbols-rounded">delete</span>
-    </div>
-  </form>
-  <p class="disclaimer-text">
-    To get a quote from real people at Dymond Systems <a href="#">click here</a>
-  </p>
-</div>
-<script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Keyword-based response map
-const responseMap = {
-  paint: `
-    <p>Here are some tips for painting your house:</p>
-    <ul>
-      <li>Choose the right paint type for each room.</li>
-      <li>Don’t forget to use painter’s tape for clean edges!</li>
-      <li><a href="https://example.com/painting-tips" target="_blank">Read more tips here.</a></li>
-    </ul>`,
-  light: `
-    <p>To replace a light fixture:</p>
-    <ol>
-      <li>Turn off the power at the breaker.</li>
-      <li>Remove the old fixture and connect the wires to the new one.</li>
-      <li>Secure the new fixture in place and restore power.</li>
-    </ol>
-    <p><a href="https://example.com/light-fixture-guide" target="_blank">Detailed guide here</a></p>`,
-  flooring: `
-    <p>The best flooring options for bathrooms are:</p>
-    <ul>
-      <li>Tile: Durable and water-resistant.</li>
-      <li>Vinyl: Budget-friendly and water-resistant.</li>
-      <li>Stone: Luxurious and long-lasting.</li>
+  
+</head>
+<body>
+  <header class="header">
+    <!-- Header Greetings -->
+    <h1 class="title">Hello, I'm dymond bot</h1>
+    <p class="subtitle">How can I help you today?</p>
+    <!-- Suggestion list -->
+    <ul class="suggestion-list">
+      <li class="suggestion">
+        <h4 class="text">Help me paint the inside of my house.</h4>
+        <span class="icon material-symbols-rounded">brush</span>
+      </li>
+      <li class="suggestion">
+        <h4 class="text">I need help replacing some light fixtures.</h4>
+        <span class="icon material-symbols-rounded">lightbulb</span>
+      </li>
+      <li class="suggestion">
+        <h4 class="text">I need to know about the best flooring options for a bathroom floor.</h4>
+        <span class="icon material-symbols-rounded">explore</span>
+      </li>
+      <li class="suggestion">
+        <h4 class="text">How can I get my toilet to stop running?</h4>
+        <span class="icon material-symbols-rounded">bathroom</span>
+      </li>
     </ul>
-    <img src="https://via.placeholder.com/150" alt="Bathroom Flooring Options">`,
-  toilet: `
-    <p>To fix a running toilet:</p>
-    <ul>
-      <li>Check the flapper valve and replace it if needed.</li>
-      <li>Adjust the float to ensure proper water level.</li>
-      <li>Inspect the fill valve for issues.</li>
-    </ul>
-    <iframe src="https://www.youtube.com/embed/abc123" title="Fixing a running toilet" width="300" height="200"></iframe>`
-};
-
-// Load saved chats and theme
-const loadDataFromLocalstorage = () => {
-  const savedChats = localStorage.getItem("saved-chats");
-  const isLightMode = localStorage.getItem("themeColor") === "light_mode";
-
-  document.body.classList.toggle("light_mode", isLightMode);
-  toggleThemeButton.innerText = isLightMode ? "dark_mode" : "light_mode";
-  chatContainer.innerHTML = savedChats || "";
-};
-
-// Create a message element
-const createMessageElement = (content, classes) => {
-  const div = document.createElement("div");
-  div.classList.add("message", ...classes);
-  div.innerHTML = content;
-  return div;
-};
-
-// Handle bot responses
-const generateCustomResponse = (message) => {
-  const lowerMessage = message.toLowerCase();
-  for (const keyword in responseMap) {
-    if (lowerMessage.includes(keyword)) return responseMap[keyword];
-  }
-  return `<p>Sorry, I don't have an answer for that. Try asking something else!</p>`;
-};
-
-// Handle sending chat messages
-const handleOutgoingChat = (message) => {
-  const outgoingMessage = createMessageElement(
-    `<div class="message-content">
-      <img class="avatar" src="https://via.placeholder.com/50" alt="User avatar">
-      <p class="text">${message}</p>
-    </div>`,
-    ["outgoing"]
-  );
-
-  chatContainer.appendChild(outgoingMessage);
-
-  const botResponse = generateCustomResponse(message);
-  const incomingMessage = createMessageElement(
-    `<div class="message-content">
-      <img class="avatar" src="https://via.placeholder.com/50" alt="Bot avatar">
-      <div class="text">${botResponse}</div>
-    </div>`,
-    ["incoming"]
-  );
-
-  chatContainer.appendChild(incomingMessage);
-  localStorage.setItem("saved-chats", chatContainer.innerHTML);
-};
-
-
-
-
-
-// Load saved data on page load
-loadDataFromLocalstorage();
-</script>
-
-
+  </header>
+  <!-- Chat List / Container -->
+  <div class="chat-list"></div>
+  <!-- Typing Area -->
+  <div class="typing-area">
+    <form action="#" class="typing-form">
+      <div class="input-wrapper">
+        <input type="text" placeholder="Enter a prompt here" class="typing-input" required />
+        <button id="send-message-button" class="icon material-symbols-rounded">send</button>
+      </div>
+      <div class="action-buttons">
+        <span id="theme-toggle-button" class="icon material-symbols-rounded">light_mode</span>
+        <span id="delete-chat-button" class="icon material-symbols-rounded">delete</span>
+      </div>
+    </form>
+    <p class="disclaimer-text">
+      To get a quote from real people at dymond systems <a href="#">click here</a>
+    </p>
+  </div>
+  <script src="script.js"></script>
+  
   <script>
   const typingForm = document.querySelector(".typing-form");
 const chatContainer = document.querySelector(".chat-list");
@@ -689,3 +576,58 @@ typingForm.addEventListener("submit", (e) => {
 loadDataFromLocalstorage();
   </script>
 
+
+
+  <script>
+
+    const customResponses = {
+  "how can I contact you?": `
+    <p>You can contact us at <a href="mailto:contact@dymondsystems.com">contact@dymondsystems.com</a></p>
+    <img src="https://example.com/contact-image.jpg" alt="Contact Us" style="width: 100px;">
+  `,
+  "show me a video": `
+    <p>Here's a video for you:</p>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
+  `,
+  // Add more prompts and responses here
+};
+const handleOutgoingChat = () => {
+  userMessage = typingForm.querySelector(".typing-input").value.trim() || userMessage;
+  if (!userMessage || isResponseGenerating) return;
+
+  const outgoingHtml = `
+    <div class="message-content">
+      <img class="avatar" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTF5-3YjBcXTqKUlOAeUUtuOLKgQSma2wGG1g&s" alt="User avatar">
+      <p class="text">${userMessage}</p>
+    </div>`;
+  const outgoingMessageDiv = createMessageElement(outgoingHtml, "outgoing");
+  chatContainer.appendChild(outgoingMessageDiv);
+
+  typingForm.reset(); 
+  document.body.classList.add("hide-header");
+  chatContainer.scrollTo(0, chatContainer.scrollHeight);
+
+  if (customResponses[userMessage.toLowerCase()]) {
+    const customResponseHtml = customResponses[userMessage.toLowerCase()];
+    const incomingMessageDiv = createMessageElement(
+      `<div class="message-content">
+        <img class="avatar" src="https://github.com/dymondsystems/dymondsystems/blob/master/dymond-logo-black.png?raw=true" alt="Gemini avatar">
+        <p class="text">${customResponseHtml}</p>
+      </div>`,
+      "incoming"
+    );
+    chatContainer.appendChild(incomingMessageDiv);
+    chatContainer.scrollTo(0, chatContainer.scrollHeight);
+    localStorage.setItem("saved-chats", chatContainer.innerHTML);
+    return;
+  }
+
+  // If no custom response, proceed with the API call
+  isResponseGenerating = true;
+  setTimeout(showLoadingAnimation, 500);
+};
+
+    
+  </script>
+</body>
+</html>
