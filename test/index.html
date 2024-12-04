@@ -398,47 +398,6 @@ body.hide-header .header {
   </p>
 </div>
 <script>
-// API configuration
-const API_KEY = "AIzaSyDc8QeSQzwqiOvZ7ti06pnEBVfcp0GJ0b0"; // Your API key here
-const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
-
-// Fetch response from the API
-const fetchAPIResponse = async (message) => {
-  try {
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${API_KEY}` // If the API requires a Bearer token
-      },
-      body: JSON.stringify({ prompt: message })
-    });
-
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return data.response || "I'm sorry, I couldn't find an answer.";
-  } catch (error) {
-    console.error(error);
-    return "There was an error connecting to the API.";
-  }
-};
-
-// Handle bot responses with API fallback
-const generateCustomResponse = async (message) => {
-  const lowerMessage = message.toLowerCase();
-
-  for (const keyword in responseMap) {
-    if (lowerMessage.includes(keyword)) {
-      return responseMap[keyword];
-    }
-  }
-
-  // If no keyword matches, call the API
-  return await fetchAPIResponse(message);
-};
 
 
 
@@ -457,11 +416,7 @@ const generateCustomResponse = async (message) => {
 
 
 
-const typingForm = document.querySelector(".typing-form");
-const chatContainer = document.querySelector(".chat-list");
-const suggestions = document.querySelectorAll(".suggestion");
-const toggleThemeButton = document.querySelector("#theme-toggle-button");
-const deleteChatButton = document.querySelector("#delete-chat-button");
+
 
 // Keyword-based response map
 const responseMap = {
@@ -550,34 +505,9 @@ const handleOutgoingChat = (message) => {
   localStorage.setItem("saved-chats", chatContainer.innerHTML);
 };
 
-// Event listeners
-toggleThemeButton.addEventListener("click", () => {
-  const isLightMode = document.body.classList.toggle("light_mode");
-  localStorage.setItem("themeColor", isLightMode ? "light_mode" : "dark_mode");
-  toggleThemeButton.innerText = isLightMode ? "dark_mode" : "light_mode";
-});
 
-deleteChatButton.addEventListener("click", () => {
-  if (confirm("Are you sure you want to delete all chats?")) {
-    chatContainer.innerHTML = "";
-    localStorage.removeItem("saved-chats");
-  }
-});
 
-typingForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const userMessage = typingForm.querySelector(".typing-input").value.trim();
-  if (!userMessage) return;
-  typingForm.reset();
-  handleOutgoingChat(userMessage);
-});
 
-suggestions.forEach((suggestion) => {
-  suggestion.addEventListener("click", () => {
-    const suggestionText = suggestion.querySelector(".text").innerText;
-    handleOutgoingChat(suggestionText);
-  });
-});
 
 // Load saved data on page load
 loadDataFromLocalstorage();
