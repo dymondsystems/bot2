@@ -416,18 +416,24 @@ let isResponseGenerating = false;
 const API_KEY = "AIzaSyDc8QeSQzwqiOvZ7ti06pnEBVfcp0GJ0b0"; // Your API key here
 const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
 
-// Custom responses mapping
-const customResponses = {
-  "how can I contact you?": `
-    <p>You can contact us at <a href="mailto:contact@dymondsystems.com">contact@dymondsystems.com</a></p>
-    <img src="https://example.com/contact-image.jpg" alt="Contact Us" style="width: 100px;">
-  `,
-  "show me a video": `
-    <p>Here's a video for you:</p>
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
-  `,
+// Custom responses mapping with keywords for matching
+const customResponses = [
+  {
+    keywords: ["contact", "reach out", "email"],  // List of keywords for contact
+    response: `
+      <p>You can contact us at <a href="mailto:contact@dymondsystems.com">contact@dymondsystems.com</a></p>
+      <img src="https://example.com/contact-image.jpg" alt="Contact Us" style="width: 100px;">
+    `
+  },
+  {
+    keywords: ["video", "watch", "show me a video"],  // List of keywords for video
+    response: `
+      <p>Here's a video for you:</p>
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
+    `
+  },
   // Add more prompts and responses here
-};
+];
 
 // Load theme and chat data from local storage on page load
 const loadDataFromLocalstorage = () => {
@@ -555,13 +561,16 @@ const handleOutgoingChat = () => {
   document.body.classList.add("hide-header");
   chatContainer.scrollTo(0, chatContainer.scrollHeight); // Scroll to the bottom
 
-  // Check if the message matches any custom response
-  if (customResponses[userMessage.toLowerCase()]) {
-    const customResponseHtml = customResponses[userMessage.toLowerCase()];
+  // Check if the message contains any keyword from custom responses
+  const matchedResponse = customResponses.find(response =>
+    response.keywords.some(keyword => userMessage.toLowerCase().includes(keyword.toLowerCase()))
+  );
+
+  if (matchedResponse) {
     const incomingMessageDiv = createMessageElement(
       `<div class="message-content">
         <img class="avatar" src="https://github.com/dymondsystems/dymondsystems/blob/master/dymond-logo-black.png?raw=true" alt="Gemini avatar">
-        <p class="text">${customResponseHtml}</p>
+        <p class="text">${matchedResponse.response}</p>
       </div>`,
       "incoming"
     );
