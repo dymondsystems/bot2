@@ -416,29 +416,29 @@ let isResponseGenerating = false;
 const API_KEY = "AIzaSyDc8QeSQzwqiOvZ7ti06pnEBVfcp0GJ0b0"; // Your API key here
 const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
 
-// Custom responses mapping with keywords for matching
+// Custom response map (with keyword-based matching)
 const customResponses = [
   {
-    keywords: ["contact", "reach out", "email"],  // List of keywords for contact
+    keywords: ["contact", "email"],
     response: `
       <p>You can contact us at <a href="mailto:contact@dymondsystems.com">contact@dymondsystems.com</a></p>
       <img src="https://example.com/contact-image.jpg" alt="Contact Us" style="width: 100px;">
-    `
+    `,
   },
   {
-    keywords: ["video", "watch", "show me a video"],  // List of keywords for video
+    keywords: ["video", "show me a video"],
     response: `
       <p>Here's a video for you:</p>
       <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
-    `
+    `,
   },
-  // Add more prompts and responses here
+  // Add more responses as needed
 ];
 
 // Load theme and chat data from local storage on page load
 const loadDataFromLocalstorage = () => {
   const savedChats = localStorage.getItem("saved-chats");
-  const isLightMode = (localStorage.getItem("themeColor") === "light_mode");
+  const isLightMode = localStorage.getItem("themeColor") === "light_mode";
 
   // Apply the stored theme
   document.body.classList.toggle("light_mode", isLightMode);
@@ -548,16 +548,16 @@ const handleOutgoingChat = () => {
 
   isResponseGenerating = true;
 
+  // Create and show the outgoing message
   const outgoingHtml = `
     <div class="message-content">
       <img class="avatar" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTF5-3YjBcXTqKUlOAeUUtuOLKgQSma2wGG1g&s" alt="User avatar">
       <p class="text">${userMessage}</p>
     </div>`;
-
   const outgoingMessageDiv = createMessageElement(outgoingHtml, "outgoing");
   chatContainer.appendChild(outgoingMessageDiv);
 
-  typingForm.reset(); // Clear input field
+  typingForm.reset(); // Clear input field to ensure it's ready for the next message
   document.body.classList.add("hide-header");
   chatContainer.scrollTo(0, chatContainer.scrollHeight); // Scroll to the bottom
 
@@ -577,6 +577,9 @@ const handleOutgoingChat = () => {
     chatContainer.appendChild(incomingMessageDiv);
     chatContainer.scrollTo(0, chatContainer.scrollHeight);
     localStorage.setItem("saved-chats", chatContainer.innerHTML); // Save chats to local storage
+
+    // Reset after custom response is handled
+    isResponseGenerating = false;
     return;
   }
 
@@ -614,6 +617,7 @@ typingForm.addEventListener("submit", (e) => {
 });
 
 loadDataFromLocalstorage();
+
 
     
   </script>
