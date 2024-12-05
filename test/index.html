@@ -619,6 +619,66 @@ typingForm.addEventListener("submit", (e) => {
 loadDataFromLocalstorage();
 
 
+
+
+
+
+    // Updated custom response structure with link-based triggers
+const customResponses = [
+  {
+    keywords: ["contact", "email", "reach out"],
+    response: `
+      <p>You can contact us at <a href="mailto:contact@dymondsystems.com">contact@dymondsystems.com</a></p>
+      <p>Click <a href="#" class="link-to-video">here</a> to see a video response.</p>
+    `,
+    triggerLink: "link-to-video",  // ID or class to trigger video response
+    triggerResponse: "video",     // Custom response type to trigger
+  },
+  {
+    keywords: ["video", "show me a video", "play video"],
+    response: `
+      <p>Here's a video for you:</p>
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
+    `,
+    triggerLink: "link-to-contact",  // ID or class to trigger contact response
+    triggerResponse: "contact",     // Custom response type to trigger contact response
+  },
+];
+
+// Function to handle link clicks inside responses
+const handleLinkClick = (e) => {
+  e.preventDefault(); // Prevent default link behavior
+
+  // Check which response is triggered based on the clicked link
+  const triggerClass = e.target.className;
+  const responseToTrigger = customResponses.find(response => response.triggerLink === triggerClass);
+  
+  if (responseToTrigger) {
+    const incomingMessageDiv = createMessageElement(
+      `<div class="message-content">
+        <img class="avatar" src="https://github.com/dymondsystems/dymondsystems/blob/master/dymond-logo-black.png?raw=true" alt="Gemini avatar">
+        <p class="text">${responseToTrigger.response}</p>
+      </div>`,
+      "incoming"
+    );
+    chatContainer.appendChild(incomingMessageDiv);
+    chatContainer.scrollTo(0, chatContainer.scrollHeight);
+    localStorage.setItem("saved-chats", chatContainer.innerHTML); // Save chats to local storage
+  }
+};
+
+// Attach event listener to the document to catch all clicks on the links
+document.addEventListener("click", (e) => {
+  if (e.target.tagName === "A" && e.target.classList.contains("link-to-video")) {
+    handleLinkClick(e);
+  }
+  if (e.target.tagName === "A" && e.target.classList.contains("link-to-contact")) {
+    handleLinkClick(e);
+  }
+});
+
+
+
     
   </script>
 </body>
