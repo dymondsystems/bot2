@@ -399,10 +399,10 @@ body.hide-header .header {
       To get a quote from real people at dymond systems <a href="#">click here</a>
     </p>
   </div>
-  <script src="script.js"></script>
+
   
   <script>
-  const typingForm = document.querySelector(".typing-form");
+const typingForm = document.querySelector(".typing-form");
 const chatContainer = document.querySelector(".chat-list");
 const suggestions = document.querySelectorAll(".suggestion");
 const toggleThemeButton = document.querySelector("#theme-toggle-button");
@@ -415,6 +415,19 @@ let isResponseGenerating = false;
 // API configuration
 const API_KEY = "AIzaSyDc8QeSQzwqiOvZ7ti06pnEBVfcp0GJ0b0"; // Your API key here
 const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
+
+// Custom responses mapping
+const customResponses = {
+  "how can I contact you?": `
+    <p>You can contact us at <a href="mailto:contact@dymondsystems.com">contact@dymondsystems.com</a></p>
+    <img src="https://example.com/contact-image.jpg" alt="Contact Us" style="width: 100px;">
+  `,
+  "show me a video": `
+    <p>Here's a video for you:</p>
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
+  `,
+  // Add more prompts and responses here
+};
 
 // Load theme and chat data from local storage on page load
 const loadDataFromLocalstorage = () => {
@@ -525,22 +538,40 @@ const copyMessage = (copyButton) => {
 // Handle sending outgoing chat messages
 const handleOutgoingChat = () => {
   userMessage = typingForm.querySelector(".typing-input").value.trim() || userMessage;
-  if(!userMessage || isResponseGenerating) return; // Exit if there is no message or response is generating
+  if (!userMessage || isResponseGenerating) return; // Exit if there is no message or response is generating
 
   isResponseGenerating = true;
 
-  const html = `<div class="message-content">
-                  <img class="avatar" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTF5-3YjBcXTqKUlOAeUUtuOLKgQSma2wGG1g&s" alt="User avatar">
-                  <p class="text"></p>
-                </div>`;
+  const outgoingHtml = `
+    <div class="message-content">
+      <img class="avatar" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTF5-3YjBcXTqKUlOAeUUtuOLKgQSma2wGG1g&s" alt="User avatar">
+      <p class="text">${userMessage}</p>
+    </div>`;
 
-  const outgoingMessageDiv = createMessageElement(html, "outgoing");
-  outgoingMessageDiv.querySelector(".text").innerText = userMessage;
+  const outgoingMessageDiv = createMessageElement(outgoingHtml, "outgoing");
   chatContainer.appendChild(outgoingMessageDiv);
-  
+
   typingForm.reset(); // Clear input field
   document.body.classList.add("hide-header");
   chatContainer.scrollTo(0, chatContainer.scrollHeight); // Scroll to the bottom
+
+  // Check if the message matches any custom response
+  if (customResponses[userMessage.toLowerCase()]) {
+    const customResponseHtml = customResponses[userMessage.toLowerCase()];
+    const incomingMessageDiv = createMessageElement(
+      `<div class="message-content">
+        <img class="avatar" src="https://github.com/dymondsystems/dymondsystems/blob/master/dymond-logo-black.png?raw=true" alt="Gemini avatar">
+        <p class="text">${customResponseHtml}</p>
+      </div>`,
+      "incoming"
+    );
+    chatContainer.appendChild(incomingMessageDiv);
+    chatContainer.scrollTo(0, chatContainer.scrollHeight);
+    localStorage.setItem("saved-chats", chatContainer.innerHTML); // Save chats to local storage
+    return;
+  }
+
+  // If no custom response, proceed with the API call
   setTimeout(showLoadingAnimation, 500); // Show loading animation after a delay
 }
 
@@ -574,58 +605,6 @@ typingForm.addEventListener("submit", (e) => {
 });
 
 loadDataFromLocalstorage();
-  </script>
-
-
-
-  <script>
-
-    const customResponses = {
-  "how can I contact you?": `
-    <p>You can contact us at <a href="mailto:contact@dymondsystems.com">contact@dymondsystems.com</a></p>
-    <img src="https://example.com/contact-image.jpg" alt="Contact Us" style="width: 100px;">
-  `,
-  "show me a video": `
-    <p>Here's a video for you:</p>
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
-  `,
-  // Add more prompts and responses here
-};
-const handleOutgoingChat = () => {
-  userMessage = typingForm.querySelector(".typing-input").value.trim() || userMessage;
-  if (!userMessage || isResponseGenerating) return;
-
-  const outgoingHtml = `
-    <div class="message-content">
-      <img class="avatar" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTF5-3YjBcXTqKUlOAeUUtuOLKgQSma2wGG1g&s" alt="User avatar">
-      <p class="text">${userMessage}</p>
-    </div>`;
-  const outgoingMessageDiv = createMessageElement(outgoingHtml, "outgoing");
-  chatContainer.appendChild(outgoingMessageDiv);
-
-  typingForm.reset(); 
-  document.body.classList.add("hide-header");
-  chatContainer.scrollTo(0, chatContainer.scrollHeight);
-
-  if (customResponses[userMessage.toLowerCase()]) {
-    const customResponseHtml = customResponses[userMessage.toLowerCase()];
-    const incomingMessageDiv = createMessageElement(
-      `<div class="message-content">
-        <img class="avatar" src="https://github.com/dymondsystems/dymondsystems/blob/master/dymond-logo-black.png?raw=true" alt="Gemini avatar">
-        <p class="text">${customResponseHtml}</p>
-      </div>`,
-      "incoming"
-    );
-    chatContainer.appendChild(incomingMessageDiv);
-    chatContainer.scrollTo(0, chatContainer.scrollHeight);
-    localStorage.setItem("saved-chats", chatContainer.innerHTML);
-    return;
-  }
-
-  // If no custom response, proceed with the API call
-  isResponseGenerating = true;
-  setTimeout(showLoadingAnimation, 500);
-};
 
     
   </script>
