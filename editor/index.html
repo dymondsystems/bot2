@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Editor with Chat API Integration</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/codemirror.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/theme/dracula.min.css" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+        }
+
+        #editor-container {
+            height: calc(100% - 50px); /* Adjust height to fill container */
+            background-color: #1e1e1e;
+        }
+
+        #preview {
+            border: 1px solid #444;
+            height: 100%;
+            overflow: auto;
+            background-color: #fff;
+        }
+
+        .btn {
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #0056b3;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            border-color: #218838;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            border-color: #565e64;
+        }
+
+        .btn-group {
+            border-bottom: 1px solid #444;
+            padding-bottom: 10px;
+            background-color: #1e1e1e;
+        }
+
+        #savedStatesList {
+            margin-top: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 10px;
+        }
+
+        .chat-input-container {
+            margin-top: 10px;
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid h-100">
+    <div class="row h-100">
+        <!-- Preview Section -->
+        <div class="col-md-6 p-0">
+            <iframe id="preview" class="w-100"></iframe>
+        </div>
+
+        <!-- Editor Section -->
+        <div class="col-md-6 p-0 d-flex flex-column">
+            <!-- Button Controls -->
+            <div class="btn-group p-2">
+                <button id="runButton" class="btn btn-primary">Run</button>
+                <button id="saveButton" class="btn btn-success">Save</button>
+                <button id="revertButton" class="btn btn-secondary">Revert</button>
+                <button id="previewButton" class="btn btn-info">Full-Screen Preview</button>
+                <button id="chatButton" class="btn btn-warning">Ask Chat API</button>
+            </div>
+
+            <!-- State Name Input -->
+            <div class="form-group p-2">
+                <label for="stateName">State Name:</label>
+                <input type="text" id="stateName" class="form-control" placeholder="Enter state name">
+            </div>
+
+            <!-- Saved States List -->
+            <div id="savedStatesList" class="p-2">
+                <h5>Saved States:</h5>
+                <ul id="stateList" class="list-group"></ul>
+            </div>
+
+            <!-- Editor -->
+            <div id="editor-container"></div>
+
+            <!-- Chat API Prompt Section -->
+            <div class="chat-input-container">
+                <label for="chatPrompt">Chat API Prompt:</label>
+                <div class="input-group">
+                    <input type="text" id="chatPrompt" class="form-control" placeholder="Ask a question for code modification">
+                    <div class="input-group-append">
+                        <button id="chatButton" class="btn btn-warning">Ask Chat API</button>
+                    </div>
+                </div>
+                <small class="form-text text-muted">Enter a prompt to ask Chat API to modify the code.</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/addon/edit/closetag.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/addon/edit/matchbrackets.min.js"></script>
+
+<script>
+    const preview = document.getElementById('preview');
+    const runButton = document.getElementById('runButton');
+    const saveButton = document.getElementById('saveButton');
+    const revertButton = document.getElementById('revertButton');
+    const previewButton = document.getElementById('previewButton');
+    const chatButton = document.getElementById('chatButton');
+    const stateNameInput = document.getElementById('stateName');
+    const savedStatesList = document.getElementById('savedStatesList');
+    const stateList = document.getElementById('stateList');
+    const chatPromptInput = document.getElementById('chatPrompt');
+
+    const STORAGE_KEY = 'editorContent';
+    const SAVED_STATES_KEY = 'savedStates'; // Key for saved states list
+    const DEFAULT_CONTENT = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Preview</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hello, World!</h1>
+    <p>Edit this code in the editor to see changes.</p>
+</body>
+</html>`;
+
+    // Initialize CodeMirror editor
+    const editor = CodeMirror(document.getElementById('editor-container'), {
+        value: localStorage.getItem(STORAGE_KEY) || DEFAULT_CONTENT,
+        mode: 'htmlmixed',
+        theme: 'dracula',
+        lineNumbers: true,
+        autoCloseTags: true,
+        matchBrackets: true,
+    });
+
+    // Update the iframe content
+    function updatePreview(content) {
+        const doc = preview.contentDocument || preview.contentWindow.document;
+        doc.open();
+        doc.write(content);
+        doc.close();
+    }
+
+    // Run button functionality (Update preview without saving)
+    runButton.addEventListener('click', () => {
+        const currentContent = editor.getValue();
+        updatePreview(currentContent);  // Only update the preview without saving
+    });
+
+    // Save button functionality (Save the current state to savedStates)
+    saveButton.addEventListener('click', () => {
+        const stateName = stateNameInput.value.trim();
+        if (stateName === '') {
+            alert('Please provide a name for this state!');
+            return;
+        }
+
+        const currentContent = editor.getValue();
+        const savedStates = JSON.parse(localStorage.getItem(SAVED_STATES_KEY)) || [];
+
+        // Add the new state to the list
+        savedStates.push({ name: stateName, content: currentContent });
+        localStorage.setItem(SAVED_STATES_KEY, JSON.stringify(savedStates));
+
+        // Update the state list display
+        renderSavedStates(savedStates);
+
+        alert('State Saved!');
+    });
+
+    // Revert button functionality (Restore the last saved state)
+    revertButton.addEventListener('click', () => {
+        const savedState = localStorage.getItem(STORAGE_KEY);
+        if (savedState !== null) {
+            editor.setValue(savedState); // Restore the saved state
+            updatePreview(savedState);  // Update the preview with saved content
+        } else {
+            alert('No saved state to revert to.');
+        }
+    });
+
+    // Full-Screen Preview Button (Redirect to another page for full screen preview)
+    previewButton.addEventListener('click', () => {
+        const content = editor.getValue();
+        localStorage.setItem(STORAGE_KEY, content);  // Save the current content before redirect
+        window.location.href = 'preview.html';  // Redirect to the preview page
+    });
+
+    // Chat API button to get suggestions
+    chatButton.addEventListener('click', async () => {
+        const userPrompt = chatPromptInput.value.trim();
+
+        if (!userPrompt) {
+            alert('Please enter a prompt for the Chat API.');
+            return;
+        }
+
+        try {
+            // Make an API call to Gemini to get code suggestions
+            const response = await fetch('https://api.gemini.com/v1/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer YOUR_GEMINI_API_KEY'  // Replace with your actual API key
+                },
+                body: JSON.stringify({
+                    model: 'gemini',  // Adjust based on the Gemini model you're using
+                    prompt: userPrompt,
+                    max_tokens: 150
+                })
+            });
+
+            const data = await response.json();
+            const generatedCode = data.choices[0].text.trim(); // The code suggestion
+
+            // Apply the generated code to the editor
+            editor.setValue(generatedCode);
+            updatePreview(generatedCode);  // Update the preview with new code
+
+            alert('Code updated with Chat API suggestion!');
+        } catch (error) {
+            console.error('Error fetching from Gemini API:', error);
+            alert('Failed to get a response from the Chat API.');
+        }
+    });
+
+    // Render saved states list
+    function renderSavedStates(states) {
+        stateList.innerHTML = ''; // Clear the list
+        states.forEach(state => {
+            const li = document.createElement('li');
+            li.classList.add('list-group-item');
+            li.textContent = state.name;
+            li.style.cursor = 'pointer';
+
+            // When the user clicks on a saved state, load it into the editor
+            li.addEventListener('click', () => {
+                editor.setValue(state.content);  // Load the state content into the editor
+                updatePreview(state.content);   // Update the preview
+            });
+
+            stateList.appendChild(li);
+        });
+    }
+
+    // Load saved states on page load
+    const savedStates = JSON.parse(localStorage.getItem(SAVED_STATES_KEY)) || [];
+    renderSavedStates(savedStates);
+
+    // Render initial preview
+    updatePreview(localStorage.getItem(STORAGE_KEY) || DEFAULT_CONTENT);
+
+    // Adjust editor height dynamically
+    function adjustEditorHeight() {
+        const containerHeight = document.getElementById('editor-container').offsetHeight;
+        editor.setSize(null, containerHeight);
+    }
+
+    window.addEventListener('resize', adjustEditorHeight);
+    adjustEditorHeight(); // Initial adjustment
+</script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.4/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
