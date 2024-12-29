@@ -105,42 +105,48 @@
       }
     });
 
-    // Send prompt to chatbot and handle the response
     chatButton.addEventListener('click', async () => {
-      const prompt = chatPromptInput.value.trim();
-      if (!prompt) return alert('Please enter a prompt.');
+  const prompt = chatPromptInput.value.trim();
+  if (!prompt) return alert('Please enter a prompt.');
 
-      const outgoingMessage = document.createElement('div');
-      outgoingMessage.classList.add('outgoing');
-      outgoingMessage.textContent = `You: ${prompt}`;
-      chatContainer.appendChild(outgoingMessage);
+  // Display the outgoing message
+  const outgoingMessage = document.createElement('div');
+  outgoingMessage.classList.add('outgoing');
+  outgoingMessage.textContent = `You: ${prompt}`;
+  chatContainer.appendChild(outgoingMessage);
 
-      const incomingMessage = document.createElement('div');
-      incomingMessage.classList.add('incoming');
-      incomingMessage.textContent = 'Chatbot: Thinking...';
-      chatContainer.appendChild(incomingMessage);
+  // Display a loading indicator for the incoming message
+  const incomingMessage = document.createElement('div');
+  incomingMessage.classList.add('incoming');
+  incomingMessage.textContent = 'Chatbot: Thinking...';
+  chatContainer.appendChild(incomingMessage);
 
-      chatContainer.scrollTop = chatContainer.scrollHeight;
+  chatContainer.scrollTop = chatContainer.scrollHeight;
 
-      try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            prompt,
-          }),
-        });
-
-        const data = await response.json();
-        if (data.error) throw new Error(data.error.message);
-
-        const chatbotResponse = data.candidates[0]?.content?.parts[0]?.text || 'No response.';
-        incomingMessage.textContent = `Chatbot: ${chatbotResponse}`;
-        editor.value = chatbotResponse; // Update editor with chatbot suggestion
-      } catch (error) {
-        incomingMessage.textContent = `Chatbot: Error - ${error.message}`;
-      }
+  try {
+    // Make the API call with the correct payload structure
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: {
+          text: prompt
+        }
+      }),
     });
+
+    const data = await response.json();
+    if (data.error) throw new Error(data.error.message);
+
+    // Extract the chatbot's response
+    const chatbotResponse = data.candidates[0]?.content || 'No response.';
+    incomingMessage.textContent = `Chatbot: ${chatbotResponse}`;
+    editor.value = chatbotResponse; // Update the editor with the chatbot's suggestion
+  } catch (error) {
+    incomingMessage.textContent = `Chatbot: Error - ${error.message}`;
+  }
+});
+
   </script>
 </body>
 </html>
