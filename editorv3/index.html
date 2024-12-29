@@ -112,13 +112,13 @@
     const API_URL = `https://generativelanguage.googleapis.com/v1beta2/models/text-bison-001:generateText?key=AIzaSyDc8QeSQzwqiOvZ7ti06pnEBVfcp0GJ0b0`;
 
 chatButton.addEventListener('click', async () => {
-  const prompt = chatPromptInput.value.trim();
-  if (!prompt) return alert('Please enter a prompt.');
+  const promptText = chatPromptInput.value.trim();
+  if (!promptText) return alert('Please enter a prompt.');
 
   // Display outgoing message
   const outgoingMessage = document.createElement('div');
   outgoingMessage.classList.add('outgoing');
-  outgoingMessage.textContent = `You: ${prompt}`;
+  outgoingMessage.textContent = `You: ${promptText}`;
   chatMessages.appendChild(outgoingMessage);
 
   // Display loading message
@@ -134,7 +134,7 @@ chatButton.addEventListener('click', async () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        prompt, // Correct field for Gemini API
+        prompt: { text: promptText }, // Wrapping the prompt in a TextPrompt object
       }),
     });
 
@@ -148,6 +148,7 @@ chatButton.addEventListener('click', async () => {
     incomingMessage.textContent = `Chatbot: Error - ${error.message}`;
   }
 });
+
 
   </script>
 </body>
