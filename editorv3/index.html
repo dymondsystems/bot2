@@ -109,7 +109,7 @@
 
     // Chatbot Integration
     const API_KEY = 'AIzaSyDc8QeSQzwqiOvZ7ti06pnEBVfcp0GJ0b0'; // Replace with your Gemini API key
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta2/models/text-bison-001:generateText?key=AIzaSyDc8QeSQzwqiOvZ7ti06pnEBVfcp0GJ0b0`;
+    const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${API_KEY}`;
 
 chatButton.addEventListener('click', async () => {
   const promptText = chatPromptInput.value.trim();
