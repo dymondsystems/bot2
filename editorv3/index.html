@@ -111,48 +111,44 @@
     const API_KEY = 'AIzaSyDc8QeSQzwqiOvZ7ti06pnEBVfcp0GJ0b0'; // Replace with your Gemini API key
     const API_URL = `https://generativelanguage.googleapis.com/v1beta2/models/text-bison-001:generateText?key=${API_KEY}`;
 
-    chatButton.addEventListener('click', async () => {
-      const prompt = chatPromptInput.value.trim();
-      if (!prompt) return alert('Please enter a prompt.');
+chatButton.addEventListener('click', async () => {
+  const prompt = chatPromptInput.value.trim();
+  if (!prompt) return alert('Please enter a prompt.');
 
-      // Display outgoing message
-      const outgoingMessage = document.createElement('div');
-      outgoingMessage.classList.add('outgoing');
-      outgoingMessage.textContent = `You: ${prompt}`;
-      chatMessages.appendChild(outgoingMessage);
+  // Display outgoing message
+  const outgoingMessage = document.createElement('div');
+  outgoingMessage.classList.add('outgoing');
+  outgoingMessage.textContent = `You: ${prompt}`;
+  chatMessages.appendChild(outgoingMessage);
 
-      // Display loading message
-      const incomingMessage = document.createElement('div');
-      incomingMessage.classList.add('incoming');
-      incomingMessage.textContent = 'Chatbot: Thinking...';
-      chatMessages.appendChild(incomingMessage);
+  // Display loading message
+  const incomingMessage = document.createElement('div');
+  incomingMessage.classList.add('incoming');
+  incomingMessage.textContent = 'Chatbot: Thinking...';
+  chatMessages.appendChild(incomingMessage);
 
-      try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            messages: [
-              {
-                author: 'user',
-                content: prompt
-              }
-            ]
-          })
-        });
-
-        const data = await response.json();
-        if (data.error) throw new Error(data.error.message);
-
-        const chatbotResponse = data.candidates[0]?.content || 'No response.';
-        incomingMessage.textContent = `Chatbot: ${chatbotResponse}`;
-        editor.value = chatbotResponse; // Update editor with the response
-      } catch (error) {
-        incomingMessage.textContent = `Chatbot: Error - ${error.message}`;
-      }
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt, // Correct field for Gemini API
+      }),
     });
+
+    const data = await response.json();
+    if (data.error) throw new Error(data.error.message);
+
+    const chatbotResponse = data.candidates[0]?.content || 'No response.';
+    incomingMessage.textContent = `Chatbot: ${chatbotResponse}`;
+    editor.value = chatbotResponse; // Update editor with the response
+  } catch (error) {
+    incomingMessage.textContent = `Chatbot: Error - ${error.message}`;
+  }
+});
+
   </script>
 </body>
 </html>
