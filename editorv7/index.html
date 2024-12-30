@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Editor test</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/codemirror.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/theme/dracula.min.css" rel="stylesheet">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+        }
+       /* Ensure the editor section grows and fills available space */
+#editorSection {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+#editor-container {
+    flex-grow: 1; /* This makes it fill the remaining space in its parent */
+    display: flex; /* Ensures child elements can stretch */
+    height: 100%; /* Necessary for the editor itself */
+}
+
+.CodeMirror {
+    height: 100%; /* Makes the editor fill its container */
+    width: 100%; /* Ensures proper width alignment */
+    border: 1px solid #444; /* Optional, for visual clarity */
+}
+
+        #preview {
+            height: 100%;
+            overflow: auto;
+            background-color: #fff;
+            border: 1px solid #444;
+        }
+        .btn {
+            font-size: 14px;
+        }
+        .resizable-divider {
+            cursor: ew-resize;
+            background-color: #ccc;
+            width: 8px;
+            height: 100%;
+            flex-shrink: 0;
+        }
+        #collapsibleSection {
+            display: none;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        .resizable {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+        #editorSection, #previewSection {
+            overflow: hidden;
+        }
+        
+/* Main editor section */
+#editorSection {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Editor container */
+#editor-container {
+    flex-grow: 1;
+    overflow: auto;
+}
+
+.CodeMirror {
+    height: 100%; /* Fills its container */
+    width: 100%;
+    border: 1px solid #444;
+}
+
+/* Full-screen editor styles */
+.fullscreen-editor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    background: #1e1e1e;
+}
+
+.fullscreen-editor #editorToolbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #333;
+    z-index: 10000;
+    display: flex;
+    padding: 5px;
+}
+
+.fullscreen-editor #editor-container {
+    margin-top: 40px; /* Ensure space for the toolbar */
+}
+
+
+    </style>
+</head>
+<body>
+
+<div class="container-fluid h-100">
+    <div class="resizable">
+        <!-- Editor Section -->
+      <div id="editorSection" class="d-flex flex-column h-100">
+    <div id="editorToolbar" class="btn-group p-2">
+        <button id="runButton" class="btn btn-primary">Run</button>
+                <button id="saveButton" class="btn btn-success">Save</button>
+                <button id="revertButton" class="btn btn-secondary">Revert</button>
+                <button id="openPreviewButton" class="btn btn-warning">Preview</button>
+                 <button id="toggleSavedStates" class="btn btn-danger">Edit/Save New</button>
+                <a href="https://dymond.systems/bot2/editorv6/" class="btn btn-success" role="button">New</a>
+        <button id="fullscreenEditorButton" class="btn btn-secondary">Full-Screen Editor</button>
+    </div>
+    <div id="editor-container"></div>
+</div>
+
+            <div id="collapsibleSection">
+                <div class="form-group">
+                    <label for="stateName">State Name:</label>
+                    <input type="text" id="stateName" class="form-control" placeholder="Enter state name">
+                </div>
+                <h5>Saved States:</h5>
+                <ul id="stateList" class="list-group"></ul>
+            </div>
+
+            
+   
+
+
+        <!-- Resizable Divider -->
+        <div id="divider" class="resizable-divider"></div>
+
+        <!-- Preview Section -->
+        <div id="previewSection" style="width: 50%;">
+            <iframe id="preview" class="w-100"></iframe>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/mode/htmlmixed/htmlmixed.min.js"></script>
+<script>
+    // Constants
+    const STORAGE_KEY = 'editorContent';
+    const SAVED_STATES_KEY = 'savedStates';
+    const DEFAULT_CONTENT = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Preview</title>
+</head>
+<body>
+    <h1>Hello, World!</h1>
+</body>
+</html>`;
+    const editor = CodeMirror(document.getElementById('editor-container'), {
+        value: localStorage.getItem(STORAGE_KEY) || DEFAULT_CONTENT,
+        mode: 'htmlmixed',
+        theme: 'dracula',
+        lineNumbers: true,
+    });
+    const preview = document.getElementById('preview');
+    const stateNameInput = document.getElementById('stateName');
+    const stateList = document.getElementById('stateList');
+    const collapsibleSection = document.getElementById('collapsibleSection');
+
+    // Update Preview
+    function updatePreview(content) {
+        const doc = preview.contentDocument || preview.contentWindow.document;
+        doc.open();
+        doc.write(content);
+        doc.close();
+    }
+
+    document.getElementById('runButton').addEventListener('click', () => {
+        updatePreview(editor.getValue());
+    });
+
+    document.getElementById('saveButton').addEventListener('click', () => {
+        const stateName = stateNameInput.value.trim();
+        if (!stateName) return alert('Enter a name for the state.');
+
+        const savedStates = JSON.parse(localStorage.getItem(SAVED_STATES_KEY)) || [];
+        savedStates.push({ name: stateName, content: editor.getValue() });
+        localStorage.setItem(SAVED_STATES_KEY, JSON.stringify(savedStates));
+        renderSavedStates();
+    });
+
+    document.getElementById('revertButton').addEventListener('click', () => {
+        const savedState = localStorage.getItem(STORAGE_KEY);
+        if (savedState) editor.setValue(savedState);
+        else alert('No saved state to revert to.');
+    });
+
+    document.getElementById('toggleSavedStates').addEventListener('click', () => {
+        collapsibleSection.style.display =
+            collapsibleSection.style.display === 'none' ? 'block' : 'none';
+    });
+
+    document.getElementById('openPreviewButton').addEventListener('click', () => {
+        const newWindow = window.open('', '_blank', 'width=800,height=600');
+        if (newWindow) {
+            newWindow.document.write(editor.getValue());
+            newWindow.document.close();
+        } else {
+            alert('Unable to open preview window. Check your browser settings.');
+        }
+    });
+
+    function renderSavedStates() {
+        const savedStates = JSON.parse(localStorage.getItem(SAVED_STATES_KEY)) || [];
+        stateList.innerHTML = '';
+        savedStates.forEach((state, index) => {
+            const li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+            li.textContent = state.name;
+
+            const actions = document.createElement('div');
+
+            const renameBtn = document.createElement('button');
+            renameBtn.textContent = 'Rename';
+            renameBtn.className = 'btn btn-sm btn-info';
+            renameBtn.addEventListener('click', () => {
+                const newName = prompt('Enter new name:', state.name);
+                if (newName) {
+                    state.name = newName;
+                    localStorage.setItem(SAVED_STATES_KEY, JSON.stringify(savedStates));
+                    renderSavedStates();
+                }
+            });
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'Delete';
+            deleteBtn.className = 'btn btn-sm btn-danger ml-2';
+            deleteBtn.addEventListener('click', () => {
+                if (confirm(`Delete state "${state.name}"?`)) {
+                    savedStates.splice(index, 1);
+                    localStorage.setItem(SAVED_STATES_KEY, JSON.stringify(savedStates));
+                    renderSavedStates();
+                }
+            });
+
+            actions.appendChild(renameBtn);
+            actions.appendChild(deleteBtn);
+            li.appendChild(actions);
+            li.addEventListener('click', () => {
+                editor.setValue(state.content);
+                updatePreview(state.content);
+            });
+
+            stateList.appendChild(li);
+        });
+    }
+
+    // Render Saved States
+    renderSavedStates();
+
+const divider = document.getElementById('divider');
+const editorSection = document.getElementById('editorSection');
+const previewSection = document.getElementById('previewSection');
+let isResizing = false;
+
+divider.addEventListener('mousedown', (e) => {
+    isResizing = true;
+    document.body.style.cursor = 'ew-resize';
+    document.addEventListener('mousemove', handleResize);
+    document.addEventListener('mouseup', stopResize);
+});
+
+function handleResize(e) {
+    if (!isResizing) return;
+
+    // Calculate new widths
+    const containerWidth = divider.parentElement.offsetWidth;
+    const newEditorWidth = e.clientX;
+    const newPreviewWidth = containerWidth - e.clientX - divider.offsetWidth;
+
+    // Enforce minimum widths to prevent collapse
+    const minWidth = 150; // Minimum width for each section
+    if (newEditorWidth >= minWidth && newPreviewWidth >= minWidth) {
+        editorSection.style.width = `${newEditorWidth}px`;
+        previewSection.style.width = `${newPreviewWidth}px`;
+    }
+}
+
+function stopResize() {
+    if (!isResizing) return;
+
+    isResizing = false;
+    document.body.style.cursor = 'auto';
+    document.removeEventListener('mousemove', handleResize);
+    document.removeEventListener('mouseup', stopResize);
+}
+
+
+
+</script>
+
+<script>
+const editorContainer = document.getElementById('editor-container');
+const fullscreenEditorButton = document.getElementById('fullscreenEditorButton');
+
+// Toggle fullscreen mode for the editor
+fullscreenEditorButton.addEventListener('click', () => {
+    if (editorSection.classList.contains('fullscreen-editor')) {
+        // Exit full-screen mode
+        editorSection.classList.remove('fullscreen-editor');
+        document.body.style.overflow = ''; // Re-enable scrolling
+        fullscreenEditorButton.textContent = 'Full-Screen Editor'; // Update button text
+    } else {
+        // Enter full-screen mode
+        editorSection.classList.add('fullscreen-editor');
+        document.body.style.overflow = 'hidden'; // Disable scrolling
+        fullscreenEditorButton.textContent = 'Exit Full-Screen'; // Update button text
+    }
+    editor.refresh(); // Update CodeMirror layout
+});
+
+
+
+</script>
+
+
+</body>
+</html>
