@@ -118,11 +118,11 @@
       <div id="editorSection" class="d-flex flex-column h-100">
     <div id="editorToolbar" class="btn-group p-2">
         <button id="runButton" class="btn btn-primary">Run</button>
-                <button id="saveButton" class="btn btn-success">Save</button>
+                
         <button id="revertButton" class="btn btn-secondary">Revert</button>
                 <button onclick="myFunction()" class="btn btn-secondary">Templates</button>
                 <button id="openPreviewButton" class="btn btn-warning">Preview</button>
-                 <button id="toggleSavedStates" class="btn btn-danger">Edit/Save New</button>
+                 <button id="toggleSavedStates" class="btn btn-danger">Save/Projects</button>
                 <a href="https://dymond.systems/bot2/editorv6/" class="btn btn-success" role="button">New</a>
         <button id="fullscreenEditorButton" class="btn btn-secondary">Full-Screen Editor</button>
     </div>
@@ -132,6 +132,7 @@
                 <div class="form-group">
                     <label for="stateName">Save project</label>
                     <input type="text" id="stateName" class="form-control" placeholder="Enter project name">
+                    <button id="saveButton" class="btn btn-success">Save</button>
                 </div>
                 <h5>Projects:</h5>
                 <ul id="stateList" class="list-group"></ul>
