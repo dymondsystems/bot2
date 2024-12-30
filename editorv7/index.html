@@ -9,8 +9,12 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/theme/dracula.min.css" rel="stylesheet">
     <style>
         body, html {
+            background-color: black;
             height: 100%;
             margin: 0;
+        }
+        .list-group{
+            cursor: pointer;
         }
        /* Ensure the editor section grows and fills available space */
 #editorSection {
@@ -133,12 +137,12 @@
                     <label for="stateName">Save project</label>
                     <input type="text" id="stateName" class="form-control" placeholder="Enter project name">
                     <button id="saveButton" class="btn btn-success">Save</button>
-                    <button id="toggleSavedStates2" class="btn btn-danger">Cancel</button>
+                    <button id="toggleSavedStates2" class="btn btn-default btn-outline">Cancel</button>
                 </div>
                 <h5>Projects:</h5>
                 <ul id="stateList" class="list-group"></ul>
                 <br>
-                <button id="toggleSavedStates3" class="btn btn-danger">Close</button>
+                <button id="toggleSavedStates3" class="btn btn-danger" style= float:right;>Close</button>
             </div>
 
             <div id="editor-container"></div>
