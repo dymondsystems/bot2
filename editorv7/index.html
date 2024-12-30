@@ -133,12 +133,12 @@
                     <label for="stateName">Save project</label>
                     <input type="text" id="stateName" class="form-control" placeholder="Enter project name">
                     <button id="saveButton" class="btn btn-success">Save</button>
-                    <button id="toggleSavedStates" class="btn btn-danger">Cancel</button>
+                    <button id="toggleSavedStates2" class="btn btn-danger">Cancel</button>
                 </div>
                 <h5>Projects:</h5>
                 <ul id="stateList" class="list-group"></ul>
                 <br>
-                <button id="toggleSavedStates" class="btn btn-danger">Close</button>
+                <button id="toggleSavedStates3" class="btn btn-danger">Close</button>
             </div>
 
             <div id="editor-container"></div>
@@ -217,6 +217,14 @@
     });
 
     document.getElementById('toggleSavedStates').addEventListener('click', () => {
+        collapsibleSection.style.display =
+            collapsibleSection.style.display === 'none' ? 'block' : 'none';
+    });
+         document.getElementById('toggleSavedStates2').addEventListener('click', () => {
+        collapsibleSection.style.display =
+            collapsibleSection.style.display === 'none' ? 'block' : 'none';
+    });
+         document.getElementById('toggleSavedStates3').addEventListener('click', () => {
         collapsibleSection.style.display =
             collapsibleSection.style.display === 'none' ? 'block' : 'none';
     });
