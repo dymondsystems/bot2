@@ -23,17 +23,29 @@
     height: 100%;
 }
 
-#editor-container {
-    flex-grow: 1; /* This makes it fill the remaining space in its parent */
-    display: flex; /* Ensures child elements can stretch */
-    height: 100%; /* Necessary for the editor itself */
+.CodeMirror {
+    height: 100%; /* Ensures it fills the container vertically */
+    width: 100%; /* Ensures it fills the container horizontally */
+    max-width: 100%; /* Prevents it from expanding beyond its container */
+    border: 1px solid #444; /* Optional: For visual clarity */
+    box-sizing: border-box; /* Includes padding and border in width/height */
+    overflow: hidden; /* Prevents horizontal overflow */
+    white-space: pre-wrap; /* Allows proper wrapping of long lines */
+    word-wrap: break-word; /* Breaks long words to prevent overflow */
 }
 
-.CodeMirror {
-    height: 100%; /* Makes the editor fill its container */
-    width: 100%; /* Ensures proper width alignment */
-    border: 1px solid #444; /* Optional, for visual clarity */
+#editor-container {
+    flex-grow: 1; /* Fills remaining space in its parent */
+    overflow: hidden; /* Ensures no content leaks horizontally */
+    max-width: 100%; /* Prevents the container from expanding */
+    display: flex; /* Aligns CodeMirror editor correctly */
+    flex-direction: column; /* Maintains a column layout */
 }
+
+.container-fluid {
+    max-width: 100%; /* Prevents horizontal growth of the main container */
+}
+
 
         #preview {
             height: 100%;
@@ -73,20 +85,11 @@
     height: 100%;
 }
 
-/* Editor container */
-#editor-container {
-    flex-grow: 1;
-    overflow: auto;
-}
 
-.CodeMirror {
-    height: 100%; /* Fills its container */
-    width: 100%;
-    border: 1px solid #444;
-}
 
 /* Full-screen editor styles */
 .fullscreen-editor {
+    width: 100%;
     position: fixed;
     top: 0;
     left: 0;
