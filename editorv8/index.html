@@ -63,7 +63,7 @@
             padding: 10px;
             border: 1px solid #ccc;
             overflow-y: auto; /* Allows scrolling */
-            max-height: 50%; /* Limits the height */
+            max-height: 100%; /* Limits the height */
         }
         .resizable {
             display: flex;
@@ -249,7 +249,7 @@
             deleteBtn.textContent = 'Delete';
             deleteBtn.className = 'btn btn-sm btn-danger ml-2';
             deleteBtn.addEventListener('click', () => {
-                if (confirm(`Delete state "${state.name}"?`)) {
+                if (confirm(`Delete project: "${state.name}"?`)) {
                     savedStates.splice(index, 1);
                     localStorage.setItem(SAVED_STATES_KEY, JSON.stringify(savedStates));
                     renderSavedStates();
