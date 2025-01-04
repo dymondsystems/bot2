@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Code Editor test</title>
+    <title>Code Editor Test</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/codemirror.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.10/theme/dracula.min.css" rel="stylesheet">
@@ -21,7 +21,7 @@
             display: flex;
             flex-direction: column;
             height: 100%;
-             max-width: 100%;
+            width: 50%; /* Set a fixed width for the editor section */
         }
         .CodeMirror {
             height: 100%;
@@ -73,9 +73,13 @@
         #editorSection, #previewSection {
             overflow: hidden;
         }
+        #previewSection {
+            width: 50%; /* Set a fixed width for the preview section */
+        }
         /* Full-screen editor styles */
         .fullscreen-editor {
-            width: 100%;
+            width: 100% !important; /* Override fixed width */
+            height: 100% !important; /* Ensure full height */
             position: fixed;
             top: 0;
             left: 0;
@@ -130,7 +134,7 @@
         <!-- Resizable Divider -->
         <div id="divider" class="resizable-divider"></div>
         <!-- Preview Section -->
-        <div id="previewSection" style="width: 50%;">
+        <div id="previewSection">
             <iframe id="preview" class="w-100"></iframe>
         </div>
     </div>
